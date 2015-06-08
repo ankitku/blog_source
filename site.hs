@@ -17,7 +17,7 @@ main = hakyll $ do
 
     match "js/*" $ do
         route   idRoute
-        compile compressCssCompiler
+        compile copyFileCompiler
 
     match (fromList ["about.rst", "contact.markdown"]) $ do
         route   $ setExtension "html"
