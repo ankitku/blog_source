@@ -1,0 +1,51 @@
+---
+title: My experience at Droidcon India - 2013
+author: Ankit
+---
+
+<img src="http://i288.photobucket.com/albums/ll170/_ankitku/Droidcon-2013/2013-11-28%2013.58.00_zpscidjqwmw.jpg" style="float: right; margin: 10px; width: 50%;" />
+
+I had never been to a tech conference before, and this was the first time I was attending one. [Droidcon][event_website] was being held for the third time in India. It is the largest conference for android developers and hackers and attracts huge crowd from across the country. The event was being held from 28<sup>th</sup> to 30<sup>th</sup> Nov. 2013. at the MLR Convention Centre, Bangalore. 
+
+Panel on monetization models    |  Sangharsh and I in the audience 
+--------------------------------|---------------------------------
+<img src="http://i288.photobucket.com/albums/ll170/_ankitku/Droidcon-2013/2013-11-28%2011.17.51_zpswuw0gifp.jpg" style="width: 90%;" /> | <img src="http://i288.photobucket.com/albums/ll170/_ankitku/Droidcon-2013/2013-11-28%2011.18.03_zpshude3y1h.jpg" style="width: 90%;" />
+
+</br>
+
+The two days of conference was a great learning experience, as I got a chance to interact with developers from many other companies/startups.
+
+
+###Hacknight
+
+<img src="http://i288.photobucket.com/albums/ll170/_ankitku/Droidcon-2013/2013-11-30%2010.03.08_zpst2zkjco2.jpg" style="width: 100%;" />
+*the venue*
+
+I had decided to take part in the hackathon as well. The idea was to create a geospatial messaging system ( kind of like virtual post-it notes ), which can be used to tag and rate places, or for simple conversation.
+
+The Hacknight commenced from the night of 29<sup>th</sup> Nov. As I was the only member in my team, I had done some of the work beforehand, and was ready with the back-end APIs. So, I had to complete the app during the night.
+
+<img src="http://i288.photobucket.com/albums/ll170/_ankitku/Droidcon-2013/2013-11-30%2004.05.53_zps7ces12ms.jpg" style="width: 40%;" />
+*working on the app*
+
+Earlier in the night, SONY officials had given a presentation on the smartwatch 2 and how to integrate it with an android app. So, I decided to add smart watch integration to the app as well, as it would increase my chances of winning SONY goodies.
+
+The app demos were held next day in the evening. Below is the link to my app demo :
+</br>
+<iframe width="420" height="315"
+src="http://www.youtube.com/embed/3qtuORgVMrQ">
+</iframe>
+
+And guess what, I won the first prize in the Hackathon and received, as prize, a Samsung Galaxy Tab as well as a Sony Xperia Z1 phone :) This was a proud  moment for me.
+
+<blockquote class="twitter-tweet" lang="en"><p lang="en" dir="ltr">Someone just won a galaxy tab 10.1 and a xperia z1 at the <a href="https://twitter.com/hashtag/droidconIn?src=hash">#droidconIn</a> hacknight :-D <a href="http://t.co/un0mT8iVw5">pic.twitter.com/un0mT8iVw5</a></p>&mdash; s0h4m (@s0h4m) <a href="https://twitter.com/s0h4m/status/406767344694747136">November 30, 2013</a></blockquote>
+<script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+The award ceremony :
+</br>
+<iframe width="420" height="315"
+src="http://www.youtube.com/embed/AFact1zmnEM">
+</iframe>
+
+
+[event_website]:https://droidcon.in/2013/schedule
