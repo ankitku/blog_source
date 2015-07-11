@@ -1,5 +1,6 @@
 _cache
 dist
+_site
 site
 cabal-dev
 *.o
