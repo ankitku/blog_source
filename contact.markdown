@@ -2,5 +2,6 @@
 title: Contact
 ---
 
-I live in a small hut in the mountains of Kumano Kodō on Kii Hantō and would not
-like to be contacted.
+
+My current address is C-404, Hall XI, IIT Kanpur, UP-208016  
+email : ankitkumar [dot] itbhu [at] gmail [dot] com

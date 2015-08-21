@@ -19,17 +19,17 @@ main = hakyll $ do
         route   idRoute
         compile copyFileCompiler
 
-    match (fromList ["about.rst", "contact.markdown"]) $ do
+    match (fromList ["about.markdown", "contact.markdown"]) $ do
         route   $ setExtension "html"
         compile $ pandocCompiler
             >>= loadAndApplyTemplate "templates/default.html" defaultContext
             >>= relativizeUrls
 
     match "posts/*" $ do
-        route $ setExtension "html"
+        route   $ setExtension "html"
         compile $ pandocCompiler
             >>= loadAndApplyTemplate "templates/post.html"  postCtx
-            >>= loadAndApplyTemplate "templates/default.html"  postCtx
+            >>= loadAndApplyTemplate "templates/default.html" defaultContext 
             >>= relativizeUrls
 
     create ["archive.html"] $ do

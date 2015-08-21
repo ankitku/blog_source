@@ -6,6 +6,10 @@ body{
     font-family: 'Quicksand', sans-serif;
 }
 
+div#disqus{
+    width: 70%;
+}
+
 div#header{
     border-bottom: 2px solidblack; 
     margin-bottom: 30px;
@@ -24,7 +28,7 @@ div#header#navigation{
     text-align: right
 }
 
-div#header#navigationa{
+div#header#navigations{
     color: black;
     font-size: 18px;
     font-weight: bold;
