@@ -3,7 +3,7 @@ title: About
 ---
 
 
-I am currently a Sysadmin and PG student in the Computer Science Department at IIT Kanpur.
+I am currently a course tutor and PG student in the Computer Science Department at IIT Kanpur.
 Previously I was working as Senior Software Engineer at Olacabs, Bangalore , and before that, as an Associate at Morgan Stanley, Mumbai.
 
 For most of my professional career, I have coded in Java. However I find it quite verbose. I also had the chance to play with Ruby, however none could match the speed of implementation and expressiveness that Haskell provides. For the same reason, I chose [hakyll](http://jaspervdj.be/hakyll) to generate my blog.

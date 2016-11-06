@@ -1,0 +1,192 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>Dep_Typ_Graph</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library Dep_Typ_Graph</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="var">List</span> <span class="id" title="var">Arith</span> <span class="id" title="var">Bool</span> <span class="id" title="var">Maps</span> <span class="id" title="var">FinFun</span> <span class="id" title="var">Basics</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+*We try to create a simple data structure to store Graphs, using dependent typing 
+</div>
+<div class="code">
+<span class="id" title="keyword">Fixpoint</span> <span class="id" title="var">f_maker</span> (<span class="id" title="var">a</span> <span class="id" title="var">b</span>: <span class="id" title="var">nat</span>) := <span class="id" title="keyword">fun</span> (<span class="id" title="var">x</span>:<span class="id" title="var">nat</span>) =&gt; <span class="id" title="keyword">if</span> <span class="id" title="var">beq_nat</span> <span class="id" title="var">x</span> <span class="id" title="var">a</span> <span class="id" title="keyword">then</span> <span class="id" title="var">b</span> <span class="id" title="keyword">else</span> 0.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+let us represent edges of graphs using functions ( -&gt; type for -&gt; edges) 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">edge_maker</span> (<span class="id" title="var">x</span> <span class="id" title="var">y</span>:<span class="id" title="var">id</span>) :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="var">x</span>,<span class="id" title="var">y</span> <span class="id" title="keyword">with</span> <span class="id" title="var">Id</span> <span class="id" title="var">x1</span>,<span class="id" title="var">Id</span> <span class="id" title="var">y1</span> =&gt; <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">fun</span> (<span class="id" title="var">a</span> : <span class="id" title="var">id</span>) =&gt; <span class="id" title="keyword">match</span> <span class="id" title="var">a</span> <span class="id" title="keyword">with</span> <span class="id" title="var">Id</span> <span class="id" title="var">a1</span> =&gt; <span class="id" title="var">Id</span> ((<span class="id" title="var">f_maker</span> <span class="id" title="var">x1</span> <span class="id" title="var">y1</span>) <span class="id" title="var">a1</span>) <span class="id" title="keyword">end</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+define some sample points 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">V1</span> := <span class="id" title="var">Id</span> 5.<br/>
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">V2</span> := <span class="id" title="var">Id</span> 6.<br/>
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">V3</span> := <span class="id" title="var">Id</span> 7.<br/>
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">V4</span> := <span class="id" title="var">Id</span> 8.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+sample edges 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">f</span> := <span class="id" title="var">edge_maker</span> <span class="id" title="var">V1</span> <span class="id" title="var">V2</span>.<br/>
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">g</span> := <span class="id" title="var">edge_maker</span> <span class="id" title="var">V2</span> <span class="id" title="var">V3</span>.<br/>
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">h</span> := <span class="id" title="var">edge_maker</span> <span class="id" title="var">V3</span> <span class="id" title="var">V4</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Eval</span> <span class="id" title="tactic">compute</span> <span class="id" title="keyword">in</span> (<span class="id" title="var">f</span> (<span class="id" title="var">Id</span> 5)).<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">nodeList</span> := <span class="id" title="var">list</span> <span class="id" title="var">id</span>.<br/>
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">edgeList</span> := <span class="id" title="var">list</span> (<span class="id" title="var">id</span> -&gt; <span class="id" title="var">id</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Check</span> <span class="id" title="var">compose</span>.<br/>
+</div>
+
+<div class="doc">
+similar to function composition, we get edge composition
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">edge_compose</span> (<span class="id" title="var">f</span> <span class="id" title="var">g</span> : <span class="id" title="var">id</span> -&gt; <span class="id" title="var">id</span>) := <span class="id" title="var">compose</span> <span class="id" title="var">g</span> <span class="id" title="var">f</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">f_inv</span> := <span class="id" title="var">edge_maker</span> (<span class="id" title="var">Id</span> 6) (<span class="id" title="var">Id</span> 5).<br/>
+<span class="id" title="keyword">Eval</span> <span class="id" title="tactic">compute</span> <span class="id" title="keyword">in</span>  (<span class="id" title="var">edge_compose</span> <span class="id" title="var">f</span> <span class="id" title="var">f_inv</span>) (<span class="id" title="var">Id</span> 5).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+and we can use edge_compose to get to the last connected vertex 
+</div>
+<div class="code">
+<span class="id" title="keyword">Eval</span> <span class="id" title="tactic">compute</span> <span class="id" title="keyword">in</span> ((<span class="id" title="var">edge_compose</span> (<span class="id" title="var">edge_compose</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span>) <span class="id" title="var">h</span>) (<span class="id" title="var">Id</span> 5)).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+However the above representation was not very useful, let's put more data in types
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Section</span> <span class="id" title="var">phoas_graph</span>.<br/>
+</div>
+
+<div class="doc">
+a universal constructor for nodes 
+</div>
+<div class="code">
+<span class="id" title="keyword">Inductive</span> <span class="id" title="var">u</span> (<span class="id" title="var">i</span> : <span class="id" title="var">id</span>) : <span class="id" title="keyword">Type</span> :=<br/>
+&nbsp;&nbsp;| <span class="id" title="var">U</span> : <span class="id" title="var">u</span> <span class="id" title="var">i</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">v1</span> := <span class="id" title="var">U</span> (<span class="id" title="var">Id</span> 5).<br/>
+<span class="id" title="keyword">Check</span> <span class="id" title="var">v1</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+need a new definition for checking equality of nodes 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">beq_U</span>  {<span class="id" title="var">i</span> <span class="id" title="var">j</span>: <span class="id" title="var">id</span>} (<span class="id" title="var">x</span> : <span class="id" title="var">u</span> <span class="id" title="var">i</span>) (<span class="id" title="var">y</span> : <span class="id" title="var">u</span> <span class="id" title="var">j</span>) := <span class="id" title="var">beq_id</span> <span class="id" title="var">i</span> <span class="id" title="var">j</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+need a new way to create edges 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">edge_maker2</span> {<span class="id" title="var">i</span> <span class="id" title="var">j</span>: <span class="id" title="var">id</span>} (<span class="id" title="var">x</span> : <span class="id" title="var">u</span> <span class="id" title="var">i</span>) (<span class="id" title="var">y</span> : <span class="id" title="var">u</span> <span class="id" title="var">j</span>) : <span class="id" title="var">u</span> <span class="id" title="var">i</span> -&gt; <span class="id" title="var">u</span> <span class="id" title="var">j</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">fun</span> (<span class="id" title="var">a</span> : <span class="id" title="var">u</span> <span class="id" title="var">i</span>) =&gt; <span class="id" title="var">U</span> <span class="id" title="var">j</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">edge_compose2</span> {<span class="id" title="var">i</span> <span class="id" title="var">j</span> <span class="id" title="var">k</span> : <span class="id" title="var">id</span>} (<span class="id" title="var">f</span> : <span class="id" title="var">u</span> <span class="id" title="var">i</span> -&gt; <span class="id" title="var">u</span> <span class="id" title="var">j</span>) (<span class="id" title="var">g</span> : <span class="id" title="var">u</span> <span class="id" title="var">j</span> -&gt; <span class="id" title="var">u</span> <span class="id" title="var">k</span>) :=<br/>
+&nbsp;&nbsp;<span class="id" title="var">compose</span> <span class="id" title="var">g</span> <span class="id" title="var">f</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">f1</span> := <span class="id" title="var">edge_maker2</span> (<span class="id" title="var">U</span> <span class="id" title="var">V1</span>) (<span class="id" title="var">U</span> <span class="id" title="var">V2</span>).<br/>
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">g1</span> := <span class="id" title="var">edge_maker2</span> (<span class="id" title="var">U</span> <span class="id" title="var">V2</span>) (<span class="id" title="var">U</span> <span class="id" title="var">V3</span>).<br/>
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">h1</span> := <span class="id" title="var">edge_maker2</span> (<span class="id" title="var">U</span> <span class="id" title="var">V3</span>) (<span class="id" title="var">U</span> <span class="id" title="var">V4</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Check</span> <span class="id" title="var">f1</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Check</span> <span class="id" title="var">edge_compose2</span> (<span class="id" title="var">edge_compose2</span> <span class="id" title="var">f1</span> <span class="id" title="var">g1</span>) <span class="id" title="var">h1</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+inductive definition for a list of our new edge types. Note that we couldn't use the regular List as it wouldn't accept elements of different types
+</div>
+<div class="code">
+<span class="id" title="keyword">Inductive</span> <span class="id" title="var">edge_list</span> : <span class="id" title="keyword">Type</span> :=<br/>
+&nbsp;&nbsp;| <span class="id" title="var">ni</span> : <span class="id" title="var">edge_list</span><br/>
+&nbsp;&nbsp;| <span class="id" title="var">co</span> {<span class="id" title="var">i</span> <span class="id" title="var">j</span> : <span class="id" title="var">id</span>} : (<span class="id" title="var">u</span> <span class="id" title="var">i</span> -&gt; <span class="id" title="var">u</span> <span class="id" title="var">j</span>) -&gt; <span class="id" title="var">edge_list</span> -&gt; <span class="id" title="var">edge_list</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">ex_edge_list</span> : <span class="id" title="var">edge_list</span> := <span class="id" title="var">co</span> <span class="id" title="var">f1</span> (<span class="id" title="var">co</span> <span class="id" title="var">g1</span> (<span class="id" title="var">co</span> <span class="id" title="var">h1</span> <span class="id" title="var">ni</span>)).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+better to use relations than functions, for pattern matching
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">fromNode</span> {<span class="id" title="var">i</span> <span class="id" title="var">j</span> : <span class="id" title="var">id</span>} (<span class="id" title="var">e</span> : <span class="id" title="var">u</span> <span class="id" title="var">i</span> -&gt; <span class="id" title="var">u</span> <span class="id" title="var">j</span>) := <span class="id" title="var">i</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Now we can even write a function to convert list of edges to adjacency map 
+</div>
+<div class="code">
+<span class="id" title="keyword">Fixpoint</span> <span class="id" title="var">edgeListToAdjMap</span> (<span class="id" title="var">el</span> : <span class="id" title="var">edge_list</span>) (<span class="id" title="var">m</span> : <span class="id" title="var">total_map</span> <span class="id" title="var">edge_list</span>) : <span class="id" title="var">total_map</span> <span class="id" title="var">edge_list</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="var">el</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;| <span class="id" title="var">ni</span> =&gt; <span class="id" title="var">m</span><br/>
+&nbsp;&nbsp;| <span class="id" title="var">co</span> <span class="id" title="var">hd</span> <span class="id" title="var">tl</span> =&gt; <span class="id" title="var">edgeListToAdjMap</span> <span class="id" title="var">tl</span> (<span class="id" title="var">t_update</span> <span class="id" title="var">m</span> (<span class="id" title="var">fromNode</span> <span class="id" title="var">hd</span>) <span class="id" title="var">tl</span>)<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">end</span> <span class="id" title="var">phoas_graph</span><br/>
