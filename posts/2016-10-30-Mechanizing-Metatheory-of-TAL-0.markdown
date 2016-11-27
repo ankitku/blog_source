@@ -16,44 +16,53 @@ author: Ankit
 An example state of the abstact machine is shown below:
 <img src="http://i288.photobucket.com/albums/ll170/_ankitku/TAL0/TAl_zpsq0tw1ps8.png" height: 70%;" />
 
-We denote addresses of instructions stored in the heap as labels. Unlike a typical machine where labels are resolved to some machine address, which are integers, we maintain a distinction between labels and arbit integers, as this complies with our goal to state and prove the control-flow safety i.e. we can only branch to a valid label, and not to any arbit integer. This will ensure that the machine never gets stuck while trying to do some invalid operation.
+We denote addresses of instructions stored in the heap as labels. Unlike a typical machine where labels are resolved to some machine address, which are integers, we maintain a distinction between labels and arbitrary integers, as this complies with our goal to state and prove the control-flow safety i.e. we can only branch to a valid label, and not to any arbitrary integer. This will ensure that the machine never gets stuck while trying to do some invalid operation.
+
+TAL-0 does not have expressions. It has operands on which instructions (like ADD, MOV etc.) operate. Some instructions act on Registers like "JMP R(d)". We use “value” to refer to an operand that is not a register. Such values include ANum (integer), ALab (label pointing to an instruction sequence in the heap) or AReg (value stored in a register, not the register itself). Following are the definitions for such values :
 
 ```coq
-Inductive aexp : Type :=
- | ANum : nat -> aexp
- | AReg : nat -> aexp
- | ALab : nat -> aexp.
+Inductive val : Type :=
+ | ANum : nat -> val
+ | AReg : nat -> val
+ | ALab : nat -> val.
+```
 
-Fixpoint aeval (a : aexp) (R : registers) : nat :=
+aeval function returns nat stored in the value.
+```
+Fixpoint aeval (a : val) (R : registers) : nat :=
   match a with
  | ANum n => n
  | AReg d => R (Id d)
  | ALab l => l
   end.
 ```
-State of the machine is defined using the triple H, R and I:
+State of the machine is defined using the triple H (Heap), R(Register File) and Is(Current executing instruction sequence) :
 ```coq
 Inductive st : Type :=
- | St : heaps -> registers -> instr -> st.
+ | St : heaps -> registers -> instr_seq -> st.
 ```
 
-Instructions defined as follows :
+Instructions are defined as follows :
 ```coq
 Inductive instr : Type :=
  | IMov : forall d : nat,
-    aexp -> instr
+    val -> instr
  | IAdd : forall d s : nat,
     instr
  | ISub : forall d v : nat,
     instr
  | IIf : forall d : nat,
-    aexp -> instr
- | ISeq : instr -> instr -> instr
- | IJmp : aexp -> instr.
+    val -> instr.
+```
+And instruction sequences are defined in such a way that a sequence always has to end in a JMP.
+```coq
+Inductive instr_seq : Type :=
+ | ISeq : instr -> instr_seq -> instr_seq
+ | IJmp : val -> instr_seq.
 ```
 
 Evaluation of instructions is supposed to change the Machine State and
-thus some of its components H, R or I. These changes are recorded as
+thus some of its components H, R or Is. These changes are recorded as
 relations between initial and final state of the machine.
 ```coq
 Inductive ieval : st -> st -> Prop :=
@@ -74,8 +83,7 @@ Inductive ieval : st -> st -> Prop :=
  | R_IIf_NEQ : forall H R I r v,
      aeval (AReg r) R <> 0 -> ieval (St H R (JIF R(r) v ;; I)) (St H R I)   
  | R_ISeq : forall st st' st'',
-     ieval st st' -> ieval st' st'' -> ieval st st''
- | R_IStuck : forall st, ieval st st.
+     ieval st st' -> ieval st' st'' -> ieval st st''.
 ```
 
 
@@ -83,7 +91,7 @@ Inductive ieval : st -> st -> Prop :=
 
 The types consist of
 
-1. int -> represents arbit integer stored in a register
+1. int -> represents arbitrary integer stored in a register
 
 2. reg -> a type constructor. Takes as input, the type of the register, to which this register is pointing.
 
@@ -132,94 +140,98 @@ src="http://i288.photobucket.com/albums/ll170/_ankitku/TAL0/Screen%20Shot%202016
 
 Typing rules for arithmetic expressions :
 ```coq
-Inductive ahas_type : cmbnd_ctx -> aexp -> ty -> Prop :=
- | S_Int : forall Psi n,
-     ahas_type (PsiCtx Psi) (ANum n) int
- | S_Lab : forall Psi Gamma l v R,
-     Psi (Id l) = Some (code Gamma) -> l = aeval (ALab v) R -> ahas_type (PsiCtx Psi) (ALab v) (code Gamma)
- | S_Reg : forall Psi Gamma r,
-     Gamma (Id r) = Some (reg int) -> ahas_type (PsiGammaCtx Psi Gamma) (AReg r) (reg int)
- | S_RegV : forall Psi Gamma r,
-     ahas_type (PsiGammaCtx Psi Gamma) (AReg r) (reg (code Gamma))
- | S_RegT : forall Psi Gamma r,
-     ahas_type (PsiGammaCtx Psi Gamma) (AReg r) True
- | S_Val : forall Psi Gamma a tau,
-     ahas_type (PsiCtx Psi) a tau -> ahas_type (PsiGammaCtx Psi Gamma) a tau.
+Inductive ahas_type : cmbnd_ctx -> val -> ty -> Prop :=
+ | S_Int : forall Ψ n,
+     ahas_type (PsiCtx Ψ) (ANum n) int
+ | S_Lab : forall Ψ Γ l v R,
+     Ψ (Id l) = Some (code Γ) -> l = aeval (ALab v) R -> ahas_type (PsiCtx Ψ) (ALab v) (code Γ)
+ | S_Reg : forall Ψ Γ r,
+     Γ (Id r) = Some (reg int) -> ahas_type (PsiGammaCtx Ψ Γ) (AReg r) (reg int)
+ | S_RegV : forall Ψ Γ r,
+     ahas_type (PsiGammaCtx Ψ Γ) (AReg r) (reg (code Γ))
+ | S_RegT : forall Ψ Γ r,
+     ahas_type (PsiGammaCtx Ψ Γ) (AReg r) True
+ | S_Val : forall Ψ Γ a tau,
+     ahas_type (PsiCtx Ψ) a tau -> ahas_type (PsiGammaCtx Ψ Γ) a tau.
 ```
 
 Typing rules for instructions :
 ```coq
 Inductive ihas_type : cmbnd_ctx -> instr -> ty -> Prop :=
- | S_Jmp :  forall Psi Gamma v,
-     ahas_type (PsiGammaCtx Psi Gamma) (ALab v) (code Gamma) -> ihas_type (PsiCtx Psi) (JMP v) (code Gamma)
- | S_JmpT :  forall Psi Gamma v,
-     ahas_type (PsiGammaCtx Psi Gamma) (AReg v) True -> ihas_type (PsiCtx Psi) (JMP R(v)) (code Gamma)
- | S_Mov : forall Psi Gamma R d a tau,
-    ahas_type (PsiGammaCtx Psi Gamma) a tau -> ahas_type (PsiGammaCtx Psi Gamma) (AReg d) (reg tau) -> (update Gamma (Id d) (reg tau)) = Gamma -> ihas_type (PsiCtx Psi) (R(d) := aeval a R) (arrow Gamma Gamma)
- | S_Add : forall Psi Gamma d s,
-    ahas_type (PsiGammaCtx Psi Gamma) (AReg s) (reg int) -> ahas_type (PsiGammaCtx Psi Gamma) (AReg d) (reg int) -> update Gamma (Id d) (reg int) = Gamma -> ihas_type (PsiCtx Psi) (R(d) +:= R(s)) (arrow Gamma Gamma)
- | S_Sub : forall Psi Gamma s a v,
-      ahas_type (PsiGammaCtx Psi Gamma) a int -> ahas_type (PsiGammaCtx Psi Gamma) (AReg s) (reg int) -> a = ANum v -> ihas_type (PsiCtx Psi) (R(s) -:= v) (arrow Gamma Gamma)
- | S_If :  forall Psi Gamma r v,
-     ahas_type (PsiGammaCtx Psi Gamma) (AReg r) (reg int) -> ahas_type (PsiGammaCtx Psi Gamma) (ALab v) (code Gamma) -> ihas_type (PsiCtx Psi) (JIF R(r) v) (arrow Gamma Gamma)
- | S_Seq :  forall Psi i1 i2 Gamma Gamma2,
-     ihas_type (PsiCtx Psi) i1 (arrow Gamma Gamma2) -> ihas_type (PsiCtx Psi) i2 (code Gamma2) -> ihas_type (PsiCtx Psi) (ISeq i1 i2) (code Gamma).
+ | S_Mov : forall Ψ Γ R d a tau,
+    ahas_type (PsiGammaCtx Ψ Γ) a tau -> ahas_type (PsiGammaCtx Ψ Γ) (AReg d) (reg tau) -> (update Γ (Id d) (reg tau)) = Γ -> ihas_type (PsiCtx Ψ) (R(d) := aeval a R) (arrow Γ Γ)
+ | S_Add : forall Ψ Γ d s,
+    ahas_type (PsiGammaCtx Ψ Γ) (AReg s) (reg int) -> ahas_type (PsiGammaCtx Ψ Γ) (AReg d) (reg int) -> update Γ (Id d) (reg int) = Γ -> ihas_type (PsiCtx Ψ) (R(d) +:= R(s)) (arrow Γ Γ)
+ | S_Sub : forall Ψ Γ s a v,
+      ahas_type (PsiGammaCtx Ψ Γ) a int -> ahas_type (PsiGammaCtx Ψ Γ) (AReg s) (reg int) -> a = ANum v -> ihas_type (PsiCtx Ψ) (R(s) -:= v) (arrow Γ Γ)
+ | S_If :  forall Ψ Γ r v,
+     ahas_type (PsiGammaCtx Ψ Γ) (AReg r) (reg int) -> ahas_type (PsiGammaCtx Ψ Γ) (ALab v) (code Γ) -> ihas_type (PsiCtx Ψ) (JIF R(r) v) (arrow Γ Γ).
+```
+
+Typing rules for instruction sequences :
+```coq
+ | S_Jmp :  forall Ψ Γ v,
+     ahas_type (PsiGammaCtx Ψ Γ) (ALab v) (code Γ) -> iseq_has_type (PsiCtx Ψ) (JMP v) (code Γ)
+ | S_JmpT :  forall Ψ Γ v,
+     ahas_type (PsiGammaCtx Ψ Γ) (AReg v) True -> iseq_has_type (PsiCtx Ψ) (JMP R(v)) (code Γ)
+ | S_Seq :  forall Ψ i1 i2 Γ Γ2,
+     ihas_type (PsiCtx Ψ) i1 (arrow Γ Γ2) -> iseq_has_type (PsiCtx Ψ) i2 (code Γ2) -> iseq_has_type (PsiCtx Ψ) (ISeq i1 i2) (code Γ).
 ```
 
 #Typing of Heaps, Registers and validity of machine
 We say that machine is OK, i.e. in a valid state iff H has type Psi, R
-has type Gamma and current instruction being executed has type "code Gamma".
+has type Gamma and current instruction sequence being executed has type "code Gamma".
 ```coq
 Inductive Rhas_type : cmbnd_ctx -> registers -> context -> Prop :=
- | S_Regfile : forall Psi Gamma R r tau a, (Gamma (Id r)) = Some tau
- -> aeval a R = R (Id r) -> ahas_type (PsiGammaCtx Psi Gamma) a tau ->
- Rhas_type (PsiCtx Psi) R Gamma.
+ | S_Regfile : forall Ψ Γ R r tau a, 
+   (Γ (Id r)) = Some tau -> aeval a R = R (Id r) -> ahas_type (PsiGammaCtx Ψ Γ) a tau -> Rhas_type (PsiCtx Ψ) R Γ.
 
 Inductive Hhas_type : cmbnd_ctx -> heaps -> context -> Prop :=
-  | S_Heap : forall Psi H, (forall l tau, exists i, Psi (Id l) = Some
-  tau /\ H (Id l) = Some i /\ ihas_type (PsiCtx Psi) i tau) ->
-  Hhas_type EmptyCtx H Psi.
+  | S_Heap : forall Ψ H, 
+    (forall l tau, exists is, Ψ (Id l) = Some tau /\ H (Id l) = Some is /\ iseq_has_type (PsiCtx Ψ) is tau) -> Hhas_type EmptyCtx H Ψ.
 
-Inductive M_ok : cmbnd_ctx -> heaps -> registers -> instr -> Prop :=
- | S_Mach : forall H R I Psi Gamma, Hhas_type EmptyCtx H Psi -> Rhas_type (PsiCtx Psi) R Gamma -> ihas_type (PsiCtx Psi) I (code Gamma) -> M_ok EmptyCtx H R I.
+Inductive M_ok : cmbnd_ctx -> heaps -> registers -> instr_seq -> Prop :=
+ | S_Mach : forall H R Is Ψ Γ, 
+   Hhas_type EmptyCtx H Ψ -> Rhas_type (PsiCtx Ψ) R Γ -> iseq_has_type (PsiCtx Ψ) Is (code Γ) -> M_ok EmptyCtx H R Is.
 ```
 
 Some canonical values lemmas we will need in proving Soundness of the
 type system.
 ```coq
-Lemma Canonical_Values_Int : forall H Psi Gamma v tau, Hhas_type EmptyCtx H Psi -> ahas_type (PsiGammaCtx Psi Gamma) v tau -> tau = int -> exists n, v = ANum n.
+Lemma Canonical_Values_Int : forall H Ψ Γ v tau, 
+      Hhas_type EmptyCtx H Ψ -> ahas_type (PsiGammaCtx Ψ Γ) v tau -> tau = int -> exists n, v = ANum n.
 
-Lemma Canonical_Values_Reg :forall H Psi Gamma r R, Hhas_type EmptyCtx
-H Psi -> Rhas_type (PsiCtx Psi) R Gamma -> ahas_type (PsiGammaCtx Psi
-Gamma) (AReg r) (reg int) -> exists (n : nat), R (Id r) = n.
+Lemma Canonical_Values_Reg :forall H Ψ Γ r R, Hhas_type EmptyCtx H Ψ -> Rhas_type (PsiCtx Ψ) R Γ -> ahas_type (PsiGammaCtx Ψ Γ) (AReg r) (reg int) -> exists (n : nat), R (Id r) = n.
 
-Lemma Canonical_Values_label1 : forall H Psi Gamma v, Hhas_type
-EmptyCtx H Psi -> ahas_type (PsiGammaCtx Psi Gamma) (ALab v) (code
-Gamma) ->  Psi (Id v) = Some (code Gamma) -> exists i, H (Id v) = Some
-i /\ ihas_type (PsiCtx Psi) i (code Gamma).
+Lemma Canonical_Values_label1 : forall H Ψ Γ v, 
+      Hhas_type EmptyCtx H Ψ -> ahas_type (PsiGammaCtx Ψ Γ) (ALab v) (code Γ) ->  Ψ (Id v) = Some (code Γ) -> exists is, H (Id v) = Some is /\ iseq_has_type (PsiCtx Ψ) is (code Γ).
 
-Lemma Canonical_Values_label2 : forall H Psi Gamma R r, Hhas_type EmptyCtx H Psi -> ahas_type (PsiGammaCtx Psi Gamma) (AReg r) True -> exists i, H (Id (R (Id r))) = Some i /\ ihas_type (PsiCtx Psi) i (code Gamma).
+Lemma Canonical_Values_label2 : forall H Ψ Γ R r, 
+      Hhas_type EmptyCtx H Ψ -> ahas_type (PsiGammaCtx Ψ Γ) (AReg r) True -> exists is, H (Id (R (Id r))) = Some is /\ iseq_has_type (PsiCtx Ψ) is (code Γ).
 ```
 
 Proving safety of the type system requires proving
 
-1. Progress : A well typed machine state (M_ok M(H,R,I)) doesn't get
-stuck. eg. It will never try to jump to an arbit integer, which we
+1. Progress : A well typed machine state (M_ok  M(H,R,Is)) doesn't get
+stuck. eg. It will never try to jump to an arbitrary integer, which we
 wanted as part of control flow safety.
 2. Preservation : After each transition to a new machine state
-M'(H',R',I'), the new state is also well typed.
+M'(H',R',Is'), the new state is also well typed.
 
 Hence the soundness theorem is stated as follows :
 ```coq
-Theorem Soundness : forall H R I, M_ok EmptyCtx H R I -> exists H' R'
-I', ieval (St H R I) (St H' R' I') /\ M_ok EmptyCtx H' R' I'.
+Theorem Soundness : forall H R Is,
+    M_ok EmptyCtx H R Is -> exists H' R' Is', ieval (St H R Is) (St H' R' Is') /\ M_ok EmptyCtx H' R' Is'.
 ```
+
+I would like to thank [Chris Casinghino][tyc] for his feedback on the first version of this post.
 
 Complete proofs can be found [here][src].
 
 
 [src]:https://github.com/ankitku/awotap/blob/master/TAL.v
 
+[tyc]:http://tyconmismatch.com/
 
 
 
