@@ -234,6 +234,3 @@ Complete proofs can be found [here][src].
 [tyc]:http://tyconmismatch.com/
 
 
-
-
--
