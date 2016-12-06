@@ -229,7 +229,7 @@ I would like to thank [Chris Casinghino][tyc] for his feedback on the first vers
 Complete proofs can be found [here][src].
 
 
-[src]:https://github.com/ankitku/awotap/blob/master/TAL.v
+[src]:https://github.com/ankitku/TAL0
 
 [tyc]:http://tyconmismatch.com/
 
