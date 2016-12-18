@@ -29,8 +29,15 @@ main = hakyll $ do
         route   $ setExtension "html"
         compile $ pandocCompiler
             >>= loadAndApplyTemplate "templates/post.html"  postCtx
-            >>= loadAndApplyTemplate "templates/default.html" defaultContext 
+            >>= loadAndApplyTemplate "templates/default.html" defaultContext
             >>= relativizeUrls
+
+    create ["cv.html"] $ do
+        route idRoute
+        compile $ do
+            makeItem ""
+                 >>= loadAndApplyTemplate "templates/default.html" defaultContext
+                 >>= relativizeUrls
 
     create ["archive.html"] $ do
         route idRoute
@@ -64,7 +71,6 @@ main = hakyll $ do
     match "templates/*" $ compile templateCompiler
 
 
---------------------------------------------------------------------------------
 postCtx :: Context String
 postCtx =
     dateField "date" "%B %e, %Y" `mappend`
